@@ -10,6 +10,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from wishlist.models import BarangWishlist
+from .forms import Input_Form
 
 @login_required(login_url='/wishlist/login/')
 def show_wishlist(request):
@@ -20,6 +21,13 @@ def show_wishlist(request):
         'last_login': request.COOKIES['last_login'],
     }
     return render(request, "wishlist.html", context)
+
+def show_wishlist_ajax(request):
+    context = {
+        'nama': 'Rahma',
+        'last_login': request.COOKIES['last_login'],
+    }
+    return render(request, "wishlist_ajax.html", context)
 
 data = BarangWishlist.objects.all()
 
@@ -70,3 +78,28 @@ def logout_user(request):
     response = HttpResponseRedirect(reverse('wishlist:login'))
     response.delete_cookie('last_login')
     return response
+
+# fungsi membuat task
+def tambah_barang(request):
+    # memvalidasi input
+    if request.method == 'POST':
+        task_form = Input_Form(request.POST)
+        if task_form.is_valid():
+            barang_nama = request.POST.get('nama')
+            barang_harga = request.POST.get('harga')
+            barang_deskripsi = request.POST.get('deskripsi')
+            
+            # membuat objek baru berdasarkan model dan menyimpannya ke database
+            barang = BarangWishlist(nama=barang_nama, harga=barang_harga, deskripsi=barang_deskripsi)
+            barang.save()
+            
+            # mengembalikan ke halaman yang menampilkan tasks
+            context = {
+                "task_user" : request.user,
+                "last_login": request.COOKIES['last_login']  
+            }
+            return render(request, 'wishlist_ajax.html', context)  
+        else:
+            task_form = Input_Form()
+            messages.info(request, 'Fill out all fields to proceed')
+    return render(request, 'wishlist_ajax.html')  

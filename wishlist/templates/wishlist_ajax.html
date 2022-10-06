@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wishlist</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <style>
+      .table {
+        border-collapse: collapse;
+        margin: 25px 0;
+        font-size: 0.9em;
+        min-width: 400px;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      }
+      .table tr {
+        background-color: #ADDDD0;
+        color: #ffffff;
+        text-align: center;
+      }
+      .table tr:nth-of-type(even) {
+          background-color: #B2C8DF;
+      }
+      .table tr:nth-of-type(odd) {
+        background-color: #6E85B7;
+      }
+
+    </style>
+  </head>
+</html>
+
+<nav class="navbar navbar-expand-lg" style="background-color: #F2D1D1;">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" style="color:white;font-weight:bold;">{{nama}}</a>
+    <button class="btn btn-sm" type="button" style="background-color:white"><a style="text-decoration:none;" href="{% url 'wishlist:logout' %}">Logout</a></button>
+  </div>
+</nav>
+
+{% block content %}
+
+<div class="table-container" style="margin-left:100px;margin-right:100px;">
+  <table class="table" id="table">
+    <tr>
+    <th>Nama Barang</th>
+    <th>Harga Barang</th>
+    <th>Deskripsi</th>
+    </tr>
+      <script>
+        $(document).ready(function () {
+
+          // FETCHING DATA FROM JSON FILE
+          $.getJSON("{%url 'wishlist:show_json'%}", function (data) {
+              var barang = '';
+              // ITERATING THROUGH OBJECTS
+              $.each(data, function (key, value) {
+
+                //CONSTRUCTION OF ROWS HAVING DATA FROM JSON OBJECT
+                barang += '<tr>';
+                barang += '<td>' + value.fields.nama_barang + '</td>';
+
+                barang += '<td>' + value.fields.harga_barang + '</td>';
+
+                barang += '<td>' + value.fields.deskripsi + '</td>';
+
+                barang += '</tr>';
+            });
+              
+              //INSERTING ROWS INTO TABLE 
+              $('#table').append(barang);
+          });
+          $("form").submit(function(){
+            // Stop form from submitting normally
+            var nama = $()
+            
+            /* Serialize the submitted form control values to be sent to the web server with the request */
+            var formValues = $(this).serialize();
+            
+            // Send the form data using post
+            $.post("display-comment.php", formValues, function(data){
+                // Display the returned data in browser
+                $("#result").html(data);
+            $.ajax 
+            });
+          });
+      });
+    </script>
+  </table>
+  
+  <h4 align="center">Tambah Wishlist Baru</h4>
+  <form method="POST" action="">
+    {% csrf_token %}
+    <div class="form-row align-items-center" align="center">
+        <div class="col-sm-3">
+          <label class="col-form-label" align="center">Nama Barang: </label>
+          <input type="text" class="form-control" placeholder="Nama" name="nama">
+        </div>
+        <div class="col-sm-3">
+          <label class="col-form-label" align="center">Harga Barang: </label>
+          <input type="number" class="form-control" placeholder="Harga" name="harga">
+        </div>
+        <div class="col-sm-3" style="margin-bottom:15px" >
+          <label class="col-form-label" align="center">Deskripsi: </label>
+          <textarea class="form-control" placeholder="deskripsi" name="deskripsi"></textarea>
+        </div>
+
+        <td></td>
+        <td><input class="btn btn-outline-primary" style="margin-bottom:8px" type="submit" value="Submit"></td>
+    </div>
+  </form>
+</div>
+
+<p align="center">Sesi terakhir login: {{ last_login }}</p>
+
+{% endblock content %}
